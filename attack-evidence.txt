@@ -1,0 +1,444 @@
+===== kubectl get clusterrole bad-role -o yaml =====
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRole","metadata":{"annotations":{},"name":"bad-role"},"rules":[{"apiGroups":["*"],"resources":["*"],"verbs":["*"]}]}
+  creationTimestamp: "2026-03-07T23:18:12Z"
+  name: bad-role
+  resourceVersion: "506463"
+  uid: df0bbba2-9bee-4bb1-a15c-1933a152a4a3
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+
+===== kubectl get clusterrolebinding bad-role-binding -o yaml =====
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"annotations":{},"name":"bad-role-binding"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"bad-role"},"subjects":[{"kind":"ServiceAccount","name":"attacker-sa","namespace":"attacker"}]}
+  creationTimestamp: "2026-03-07T23:18:12Z"
+  name: bad-role-binding
+  resourceVersion: "506465"
+  uid: 9440d3b2-7891-4d41-8008-1de654b5837d
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bad-role
+subjects:
+- kind: ServiceAccount
+  name: attacker-sa
+  namespace: attacker
+
+===== kubectl get sa attacker-sa -n attacker -o yaml =====
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"ServiceAccount","metadata":{"annotations":{},"name":"attacker-sa","namespace":"attacker"}}
+  creationTimestamp: "2026-03-07T23:18:12Z"
+  name: attacker-sa
+  namespace: attacker
+  resourceVersion: "506464"
+  uid: 73066fb7-8687-4582-a90a-216569a231b6
+
+===== kubectl get pod attacker-pod -n attacker -o yaml =====
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    cni.projectcalico.org/containerID: 0905ccf1ea2b2252dfdf2930776f7f4f9451b159f542ab455a47860409810e2c
+    cni.projectcalico.org/podIP: 192.168.209.135/32
+    cni.projectcalico.org/podIPs: 192.168.209.135/32
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"attacker-pod","namespace":"attacker"},"spec":{"containers":[{"command":["sleep","3600"],"image":"bitnami/kubectl","name":"attacker"}],"serviceAccountName":"attacker-sa"}}
+  creationTimestamp: "2026-03-08T20:35:12Z"
+  name: attacker-pod
+  namespace: attacker
+  resourceVersion: "2174214"
+  uid: ced85ae7-354f-48bc-bb49-c9241ff65f30
+spec:
+  containers:
+  - command:
+    - sleep
+    - "3600"
+    image: bitnami/kubectl
+    imagePullPolicy: Always
+    name: attacker
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-75945
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: ip-172-31-2-212
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: attacker-sa
+  serviceAccountName: attacker-sa
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-75945
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:20Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-08T20:35:12Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:20Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:20Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-08T20:35:12Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://1499b41d72c145cc12039509942e9f5583b11a5a1592fe5fdd835e1a2dfbd7e7
+    image: docker.io/bitnami/kubectl:latest
+    imageID: docker.io/bitnami/kubectl@sha256:3a8ef2eba6186625bef5d59129e8118abeba5072d104c6f03e3167a9b1070ae2
+    lastState:
+      terminated:
+        containerID: containerd://0c965495e3513d00b244bb75d9045f56f065ddabd6421bce32ae52418e46adea
+        exitCode: 255
+        finishedAt: "2026-03-21T13:36:22Z"
+        reason: Unknown
+        startedAt: "2026-03-21T12:41:19Z"
+    name: attacker
+    ready: true
+    restartCount: 305
+    started: true
+    state:
+      running:
+        startedAt: "2026-03-21T13:37:20Z"
+  hostIP: 172.31.2.212
+  hostIPs:
+  - ip: 172.31.2.212
+  phase: Running
+  podIP: 192.168.209.135
+  podIPs:
+  - ip: 192.168.209.135
+  qosClass: BestEffort
+  startTime: "2026-03-08T20:35:12Z"
+
+===== kubectl get pod privileged-pod -n attacker -o yaml =====
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    cni.projectcalico.org/containerID: db4a750fdd3ad99d345b91aa29be50da8c1e34a38294d5652f4af626462a4bce
+    cni.projectcalico.org/podIP: 192.168.24.5/32
+    cni.projectcalico.org/podIPs: 192.168.24.5/32
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"privileged-pod","namespace":"attacker"},"spec":{"containers":[{"command":["sleep","3600"],"image":"ubuntu","name":"attacker","securityContext":{"privileged":true}}]}}
+  creationTimestamp: "2026-03-07T23:28:38Z"
+  name: privileged-pod
+  namespace: attacker
+  resourceVersion: "2174189"
+  uid: 756be23f-c549-44e6-b70d-1cdf089d88b4
+spec:
+  containers:
+  - command:
+    - sleep
+    - "3600"
+    image: ubuntu
+    imagePullPolicy: Always
+    name: attacker
+    resources: {}
+    securityContext:
+      privileged: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-mz9bv
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: ip-172-31-2-4
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-mz9bv
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:17Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-07T23:28:38Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:17Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:17Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-07T23:28:38Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://f150e393847611ee47c467123f77e0ca6c80c43bf6ea4c69ae1cb2ff91f10934
+    image: docker.io/library/ubuntu:latest
+    imageID: docker.io/library/ubuntu@sha256:0d39fcc8335d6d74d5502f6df2d30119ff4790ebbb60b364818d5112d9e3e932
+    lastState:
+      terminated:
+        containerID: containerd://5365a3555312b2af2fb2b656b77d7a1b67e59c53e92722aa5fc1e75a1460a9a6
+        exitCode: 255
+        finishedAt: "2026-03-21T13:36:21Z"
+        reason: Unknown
+        startedAt: "2026-03-21T13:31:23Z"
+    name: attacker
+    ready: true
+    restartCount: 327
+    started: true
+    state:
+      running:
+        startedAt: "2026-03-21T13:37:16Z"
+  hostIP: 172.31.2.4
+  hostIPs:
+  - ip: 172.31.2.4
+  phase: Running
+  podIP: 192.168.24.5
+  podIPs:
+  - ip: 192.168.24.5
+  qosClass: BestEffort
+  startTime: "2026-03-07T23:28:38Z"
+
+===== kubectl get pod host-access-pod -n attacker -o yaml =====
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    cni.projectcalico.org/containerID: 946db0d9ecd3f23336fdef1e519cb9d7f05dc3a4e2d6e6a6c9d9cf63b1174ea5
+    cni.projectcalico.org/podIP: 192.168.24.4/32
+    cni.projectcalico.org/podIPs: 192.168.24.4/32
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"host-access-pod","namespace":"attacker"},"spec":{"containers":[{"command":["sleep","3600"],"image":"ubuntu","name":"attacker","securityContext":{"privileged":true},"volumeMounts":[{"mountPath":"/host","name":"hostfs"}]}],"volumes":[{"hostPath":{"path":"/"},"name":"hostfs"}]}}
+  creationTimestamp: "2026-03-08T21:54:57Z"
+  name: host-access-pod
+  namespace: attacker
+  resourceVersion: "2174180"
+  uid: 32a52e23-48e4-445d-a514-b776380061d7
+spec:
+  containers:
+  - command:
+    - sleep
+    - "3600"
+    image: ubuntu
+    imagePullPolicy: Always
+    name: attacker
+    resources: {}
+    securityContext:
+      privileged: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /host
+      name: hostfs
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-qdqbw
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: ip-172-31-2-4
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - hostPath:
+      path: /
+      type: ""
+    name: hostfs
+  - name: kube-api-access-qdqbw
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:16Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-08T21:54:57Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:16Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-21T13:37:16Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2026-03-08T21:54:57Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://aba5b46be46730d0e86342b37e020f5077e98ebfdcb6797642f2495cf45333a7
+    image: docker.io/library/ubuntu:latest
+    imageID: docker.io/library/ubuntu@sha256:0d39fcc8335d6d74d5502f6df2d30119ff4790ebbb60b364818d5112d9e3e932
+    lastState:
+      terminated:
+        containerID: containerd://dfa017cf8bf6b60165db7d0578b7e2641a1fb919e6252d38258017dd141c4ab0
+        exitCode: 255
+        finishedAt: "2026-03-21T13:36:21Z"
+        reason: Unknown
+        startedAt: "2026-03-21T12:57:30Z"
+    name: attacker
+    ready: true
+    restartCount: 304
+    started: true
+    state:
+      running:
+        startedAt: "2026-03-21T13:37:15Z"
+  hostIP: 172.31.2.4
+  hostIPs:
+  - ip: 172.31.2.4
+  phase: Running
+  podIP: 192.168.24.4
+  podIPs:
+  - ip: 192.168.24.4
+  qosClass: BestEffort
+  startTime: "2026-03-08T21:54:57Z"
+
+===== kubectl get networkpolicy -A =====
+
+===== kubectl get secrets -A =====
+NAMESPACE   NAME        TYPE     DATA   AGE
+victim      db-secret   Opaque   1      13d
+
+===== kubectl auth can-i --as=system:serviceaccount:attacker:attacker-sa get secrets -A =====
+yes
+
+===== kubectl auth can-i --as=system:serviceaccount:attacker:attacker-sa list secrets -A =====
+yes
+
+===== kubectl get secret db-secret -n victim -o yaml =====
+apiVersion: v1
+data:
+  password: U3VwZXJTZWNyZXQxMjM=
+kind: Secret
+metadata:
+  creationTimestamp: "2026-03-07T23:23:07Z"
+  name: db-secret
+  namespace: victim
+  resourceVersion: "506911"
+  uid: 7a70b5bc-9272-4ad9-9c23-350c06d12416
+type: Opaque
+
