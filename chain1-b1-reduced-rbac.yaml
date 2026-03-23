@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: attacker
+  name: attacker-read-pods-only
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: attacker-sa-read-pods-only
+  namespace: attacker
+subjects:
+- kind: ServiceAccount
+  name: attacker-sa
+  namespace: attacker
+roleRef:
+  kind: Role
+  name: attacker-read-pods-only
+  apiGroup: rbac.authorization.k8s.io

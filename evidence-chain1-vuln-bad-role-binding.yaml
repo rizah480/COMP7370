@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"annotations":{},"name":"bad-role-binding"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"bad-role"},"subjects":[{"kind":"ServiceAccount","name":"attacker-sa","namespace":"attacker"}]}
+  creationTimestamp: "2026-03-07T23:18:12Z"
+  name: bad-role-binding
+  resourceVersion: "506465"
+  uid: 9440d3b2-7891-4d41-8008-1de654b5837d
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bad-role
+subjects:
+- kind: ServiceAccount
+  name: attacker-sa
+  namespace: attacker
