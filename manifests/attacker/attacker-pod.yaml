@@ -5,6 +5,7 @@ metadata:
   namespace: attacker
 spec:
   serviceAccountName: attacker-sa
+  automountServiceAccountToken: false
   containers:
   - name: attacker
     image: bitnami/kubectl
