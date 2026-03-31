@@ -26,6 +26,22 @@ kubectl get endpoints -n victim
 # Reconfirm baseline reachability
 kubectl exec -n attacker attacker-pod -- /bin/sh -c 'curl -I --max-time 5 http://nginx.victim.svc.cluster.local'
 
+# Steps to actually configure pods for chain 2 b1:
+
+kubectl apply -f manifests/chain2/chain2-phase1-limited-allow.yaml
+kubectl get netpol -n victim
+kubectl describe netpol chain2-phase1-limited-allow -n victim
+kubectl exec -n attacker attacker-pod -- curl -I --max-time 3 http://10.103.250.84
+
+
+
+
+# Gather evidence for chain 2 b1:
+kubectl describe netpol chain2-phase1-limited-allow -n victim 
+kubectl get svc -n victim 
+kubectl get endpoints -n victim 
+kubectl exec -n attacker attacker-pod -- curl -I --max-time 3 http://10.103.250.84
+
 
 
 
