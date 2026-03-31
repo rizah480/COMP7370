@@ -35,16 +35,74 @@ kubectl get netpol -n victim
 kubectl describe netpol chain2-phase1-limited-allow -n victim
 kubectl exec -n attacker attacker-pod -- curl -I --max-time 3 http://10.103.250.84
 
--------------------------------------------------------------------------
-
-
-
 
 # Gather evidence for chain 2 b1:
 kubectl describe netpol chain2-phase1-limited-allow -n victim 
 kubectl get svc -n victim 
 kubectl get endpoints -n victim 
 kubectl exec -n attacker attacker-pod -- curl -I --max-time 3 http://10.103.250.84
+
+-------------------------------------------------------------------------
+
+# Fully mitigated 
+
+# Steps to configure pods to be in this state
+Now reapply the intended B2 set:
+
+kubectl apply -f manifests/chain2/b2-mitigation/victim-default-deny-ingress.yaml
+kubectl apply -f manifests/chain2/b2-mitigation/allow-nginx-from-victim-namespace.yaml
+Verify the final state
+kubectl get netpol -n victim
+kubectl describe netpol victim-default-deny-ingress -n victim
+kubectl describe netpol allow-nginx-from-victim-namespace -n victim
+
+Expected output should show both policies.
+
+Then validate behavior
+
+Attacker should fail:
+
+kubectl exec -n attacker attacker-pod -- curl -I --max-time 3 http://nginx.victim.svc.cluster.local
+
+Service health should still be good:
+
+kubectl get svc -n victim
+kubectl get endpoints -n victim
+kubectl get pods -n victim -o wide
+
+Optional same-namespace success test:
+
+kubectl run test-client -n victim --rm -it --image=busybox --restart=Never -- sh
+
+Inside that pod:
+
+wget -qO- http://nginx
+
+That should succeed if same-namespace access is allowed correctly.
+
+
+
+# Gather Evidence:
+
+kubectl get netpol -n victim
+kubectl describe netpol victim-default-deny-ingress -n victim
+kubectl describe netpol allow-nginx-from-victim-namespace -n victim
+kubectl exec -n attacker attacker-pod -- curl -I --max-time 3 http://nginx.victim.svc.cluster.local
+kubectl get svc -n victim
+kubectl get endpoints -n victim
+kubectl get pods -n victim -o wide
+
+Screenshot command output when finished
+
+
+
+
+
+
+
+
+
+
 
 
 
