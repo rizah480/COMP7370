@@ -30,7 +30,7 @@ kubectl exec -n attacker attacker-pod -- /bin/sh -c 'curl -I --max-time 5 http:/
 
 # Steps to actually configure pods for chain 2 b1:
 
-kubectl apply -f manifests/chain2/chain2-phase1-limited-allow.yaml
+kubectl apply -f manifests/chain2/b1-mitigation/chain2-phase1-limited-allow.yaml
 kubectl get netpol -n victim
 kubectl describe netpol chain2-phase1-limited-allow -n victim
 kubectl exec -n attacker attacker-pod -- curl -I --max-time 3 http://10.103.250.84
