@@ -245,4 +245,20 @@ B1 demonstrates that Chain 1 can be interrupted at the **authorization boundary*
 
 In other words, the mounted ServiceAccount token is still present, but reduced RBAC prevents the attacker identity from using that token to retrieve sensitive resources.
 
+
+# To reset back to Vulnerable state:
+kubectl apply -f /home/ubuntu/COMP7370/manifests/rbac/bad-rbac.yaml
+
+kubectl get clusterrole bad-role -o yaml
+kubectl get clusterrolebinding bad-role-binding -o yaml
+
+kubectl delete pod attacker-pod -n attacker --ignore-not-found
+kubectl apply -f manifests/attacker/attacker-pod.yaml
+kubectl get pod attacker-pod -n attacker 
+
+kubectl get pod attacker-pod -n attacker -o yaml
+kubectl exec -n attacker attacker-pod -- sh -c 'test -f /var/run/secrets/kubernetes.io/serviceaccount/token && echo TOKEN_PRESENT || echo TOKEN_ABSENT'
+kubectl exec -n attacker attacker-pod -- ls -l /var/run/secrets/kubernetes.io/serviceaccount
+kubectl exec -n attacker attacker-pod -- kubectl get secret db-secret -n victim
+
      
