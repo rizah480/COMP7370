@@ -51,20 +51,20 @@ Now reapply the intended B2 set:
 
 kubectl apply -f manifests/chain2/b2-mitigation/victim-default-deny-ingress.yaml
 kubectl apply -f manifests/chain2/b2-mitigation/allow-nginx-from-victim-namespace.yaml
-Verify the final state
+# Verify the final state
 kubectl get netpol -n victim
 kubectl describe netpol victim-default-deny-ingress -n victim
 kubectl describe netpol allow-nginx-from-victim-namespace -n victim
 
-Expected output should show both policies.
+# Expected output should show both policies.
 
-Then validate behavior
+# Then validate behavior
 
-Attacker should fail:
+# Attacker should fail:
 
 kubectl exec -n attacker attacker-pod -- curl -I --max-time 3 http://nginx.victim.svc.cluster.local
 
-Service health should still be good:
+# Service health should still be good:
 
 kubectl get svc -n victim
 kubectl get endpoints -n victim
@@ -92,7 +92,7 @@ kubectl get svc -n victim
 kubectl get endpoints -n victim
 kubectl get pods -n victim -o wide
 
-Screenshot command output when finished
+# Screenshot command output when finished
 
 
 
