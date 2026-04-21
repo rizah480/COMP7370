@@ -78,4 +78,22 @@ attacker-sa had only narrow pod-read privileges,
 secret access in victim was denied,
 and the chain was fully broken.
 
+
+
+
+# To reset back to Vulnerable state:
+kubectl apply -f /home/ubuntu/COMP7370/manifests/rbac/bad-rbac.yaml
+
+kubectl get clusterrole bad-role -o yaml
+kubectl get clusterrolebinding bad-role-binding -o yaml
+
+kubectl delete pod attacker-pod -n attacker --ignore-not-found
+kubectl apply -f manifests/attacker/attacker-pod.yaml
+kubectl get pod attacker-pod -n attacker 
+
+kubectl get pod attacker-pod -n attacker -o yaml
+kubectl exec -n attacker attacker-pod -- sh -c 'test -f /var/run/secrets/kubernetes.io/serviceaccount/token && echo TOKEN_PRESENT || echo TOKEN_ABSENT'
+kubectl exec -n attacker attacker-pod -- ls -l /var/run/secrets/kubernetes.io/serviceaccount
+kubectl exec -n attacker attacker-pod -- kubectl get secret db-secret -n victim
+
 Hello this is the start of the COMP7370 PROJECT
