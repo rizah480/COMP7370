@@ -44,7 +44,7 @@ Because the pod spec could not be updated in place, the pod had to be deleted an
 
 kubectl delete pod attacker-pod -n attacker
 kubectl apply -f chain1-full-mitigation.yaml
-kubectl get pod attacker-pod -n attacker
+kubectl get pod attacker-pod -n attacker -w
 
 This is what moved the workload itself into the hardened state.
 
